@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { Suspense } from "react";
 import {
   Card,
   CardDescription,
@@ -35,7 +36,9 @@ export default function LoginPage() {
             <CardTitle>Entrar</CardTitle>
             <CardDescription>Use suas credenciais para acessar o painel.</CardDescription>
           </CardHeader>
-          <LoginForm />
+          <Suspense fallback={null}>
+            <LoginForm />
+          </Suspense>
         </Card>
       </div>
     </div>
