@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getPassengerById } from "@/lib/passengers";
+import { fetchPassengerById } from "@/lib/api-passengers";
 import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -27,7 +27,7 @@ export default async function PassageiroDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const passenger = getPassengerById(id);
+  const passenger = await fetchPassengerById(id);
 
   if (!passenger) {
     notFound();
