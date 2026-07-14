@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
-import { Eye, Search } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Eye, Loader2, Lock, MoreHorizontal, Pencil, Search, Trash2, Unlock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,9 +14,31 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import type { Passenger } from "@/lib/passengers";
+import {
+  blockPassengerAction,
+  deletePassengerAction,
+  unblockPassengerAction,
+} from "../actions";
 
 const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
   ativo: {
@@ -30,6 +53,10 @@ const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
     label: "Bloqueado",
     className: "bg-red-500/10 text-red-600 dark:bg-red-500/15 dark:text-red-400",
   },
+  excluido: {
+    label: "Excluído",
+    className: "bg-muted text-muted-foreground",
+  },
 };
 
 const STATUS_FILTERS = [
@@ -38,6 +65,85 @@ const STATUS_FILTERS = [
   { value: "inativo" as const, label: "Inativo" },
   { value: "bloqueado" as const, label: "Bloqueado" },
 ];
+
+function PassengerRowActions({ passenger }: { passenger: Passenger }) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+
+  function handleToggleBlock() {
+    startTransition(async () => {
+      const action = passenger.status === "bloqueado" ? unblockPassengerAction : blockPassengerAction;
+      await action(passenger.id);
+      router.refresh();
+    });
+  }
+
+  function handleDelete() {
+    startTransition(async () => {
+      await deletePassengerAction(passenger.id);
+      router.refresh();
+    });
+  }
+
+  if (passenger.status === "excluido") {
+    return (
+      <Button
+        variant="ghost"
+        size="icon-sm"
+        nativeButton={false}
+        render={<Link href={`/dashboard/passageiros/${passenger.id}`} />}
+        aria-label={`Ver detalhes de ${passenger.nome}`}
+      >
+        <Eye />
+      </Button>
+    );
+  }
+
+  return (
+    <AlertDialog>
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          render={<Button variant="ghost" size="icon-sm" aria-label={`Ações para ${passenger.nome}`} />}
+        >
+          {isPending ? <Loader2 className="animate-spin" /> : <MoreHorizontal />}
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem render={<Link href={`/dashboard/passageiros/${passenger.id}`} />}>
+            <Eye />
+            Ver detalhes
+          </DropdownMenuItem>
+          <DropdownMenuItem render={<Link href={`/dashboard/passageiros/${passenger.id}/editar`} />}>
+            <Pencil />
+            Editar
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={handleToggleBlock} disabled={isPending}>
+            {passenger.status === "bloqueado" ? <Unlock /> : <Lock />}
+            {passenger.status === "bloqueado" ? "Desbloquear" : "Bloquear"}
+          </DropdownMenuItem>
+          <AlertDialogTrigger render={<DropdownMenuItem onSelect={(e) => e.preventDefault()} variant="destructive" />}>
+            <Trash2 />
+            Excluir
+          </AlertDialogTrigger>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Excluir passageiro?</AlertDialogTitle>
+          <AlertDialogDescription>
+            {passenger.nome} será removido da base de passageiros. Essa ação não pode ser
+            desfeita.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+          <AlertDialogAction render={<Button variant="destructive" onClick={handleDelete} />}>
+            Excluir
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
 
 export function PassengersTable({ passengers }: { passengers: Passenger[] }) {
   const [search, setSearch] = useState("");
@@ -143,15 +249,7 @@ export function PassengersTable({ passengers }: { passengers: Passenger[] }) {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        nativeButton={false}
-                        render={<Link href={`/dashboard/passageiros/${passenger.id}`} />}
-                        aria-label={`Ver detalhes de ${passenger.nome}`}
-                      >
-                        <Eye />
-                      </Button>
+                      <PassengerRowActions passenger={passenger} />
                     </TableCell>
                   </TableRow>
                 );

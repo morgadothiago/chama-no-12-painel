@@ -14,7 +14,7 @@ export type Passenger = {
   email: string;
   telefone: string;
   avatarUrl: string | null;
-  status: "ativo" | "inativo" | "bloqueado";
+  status: "ativo" | "inativo" | "bloqueado" | "excluido";
   totalCorridas: number;
   totalGasto: number;
   cadastroEm: string;

@@ -1,27 +1,27 @@
-import { Suspense } from "react";
-import { getCoupons } from "@/lib/coupons";
+import Link from "next/link";
+import { Plus } from "lucide-react";
+import { fetchCoupons } from "@/lib/api-coupons";
 import { PageHeader } from "@/components/shared/page-header";
+import { Button } from "@/components/ui/button";
 import { CouponsTable } from "./_components/coupons-table";
-import { CouponsTableSkeleton } from "./_components/coupons-table-skeleton";
 
-function CouponsTableSection() {
-  const coupons = getCoupons();
-  return <CouponsTable coupons={coupons} />;
-}
-
-export default function CuponsPage() {
-  const coupons = getCoupons();
+export default async function CuponsPage() {
+  const coupons = await fetchCoupons();
 
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
         title="Cupons"
         description={`${coupons.length} cupom${coupons.length === 1 ? "" : "ns"} cadastrado${coupons.length === 1 ? "" : "s"}`}
+        actions={
+          <Button size="sm" nativeButton={false} render={<Link href="/dashboard/cupons/novo" />}>
+            <Plus />
+            Novo cupom
+          </Button>
+        }
       />
 
-      <Suspense fallback={<CouponsTableSkeleton />}>
-        <CouponsTableSection />
-      </Suspense>
+      <CouponsTable coupons={coupons} />
     </div>
   );
 }

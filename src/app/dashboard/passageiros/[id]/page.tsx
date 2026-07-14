@@ -1,9 +1,13 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Pencil } from "lucide-react";
 import { fetchPassengerById } from "@/lib/api-passengers";
 import { PageHeader } from "@/components/shared/page-header";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { PassengerStatusActions } from "@/components/dashboard/passenger-status-actions";
 import { cn } from "@/lib/utils";
 
 const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
@@ -18,6 +22,10 @@ const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
   bloqueado: {
     label: "Bloqueado",
     className: "bg-red-500/10 text-red-600 dark:bg-red-500/15 dark:text-red-400",
+  },
+  excluido: {
+    label: "Excluído",
+    className: "bg-muted text-muted-foreground",
   },
 };
 
@@ -55,6 +63,20 @@ export default async function PassageiroDetailPage({
           </span>
         }
         description={passenger.email}
+        actions={
+          <>
+            <Button
+              size="sm"
+              variant="outline"
+              nativeButton={false}
+              render={<Link href={`/dashboard/passageiros/${passenger.id}/editar`} />}
+            >
+              <Pencil />
+              Editar
+            </Button>
+            <PassengerStatusActions passenger={passenger} />
+          </>
+        }
       />
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">

@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { CheckCircle2, Loader2, Power, XCircle } from "lucide-react";
+import { CheckCircle2, Loader2, Power, Trash2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -133,6 +133,30 @@ export function DriverStatusActions({ driver }: { driver: Driver }) {
                 <AlertDialogCancel>Cancelar</AlertDialogCancel>
                 <AlertDialogAction render={<Button onClick={handleToggleActive} />}>
                   Confirmar
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        )}
+
+        {driver.status !== "pendente" && (
+          <AlertDialog>
+            <AlertDialogTrigger render={<Button size="sm" variant="destructive" disabled={isPending} />}>
+              <Trash2 />
+              Excluir
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Excluir motorista?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  {driver.nome} será removido da base de motoristas. Essa ação não pode ser
+                  desfeita.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction render={<Button variant="destructive" onClick={handleReject} />}>
+                  Excluir
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>

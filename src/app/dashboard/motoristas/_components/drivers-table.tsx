@@ -3,7 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { CheckCircle2, Eye, Loader2, MoreHorizontal, Pencil, Search } from "lucide-react";
+import { CheckCircle2, Eye, Loader2, MoreHorizontal, Pencil, Search, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,11 +20,22 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { StatusBadge } from "@/components/dashboard/status-badge";
 import { DriverAvatar } from "@/components/dashboard/driver-avatar";
 import type { Driver } from "@/lib/drivers";
 import type { DriverStatus } from "@/lib/validations/drivers";
-import { approveDriverAction } from "../actions";
+import { approveDriverAction, rejectDriverAction } from "../actions";
 
 const STATUS_FILTERS: { value: DriverStatus | "todos"; label: string }[] = [
   { value: "todos", label: "Todos" },
@@ -44,30 +55,59 @@ function DriverRowActions({ driver }: { driver: Driver }) {
     });
   }
 
+  function handleDelete() {
+    startTransition(async () => {
+      await rejectDriverAction(driver.id);
+      router.refresh();
+    });
+  }
+
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger
-        render={<Button variant="ghost" size="icon-sm" aria-label={`Ações para ${driver.nome}`} />}
-      >
-        {isPending ? <Loader2 className="animate-spin" /> : <MoreHorizontal />}
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem render={<Link href={`/dashboard/motoristas/${driver.id}`} />}>
-          <Eye />
-          Ver detalhes
-        </DropdownMenuItem>
-        <DropdownMenuItem render={<Link href={`/dashboard/motoristas/${driver.id}/editar`} />}>
-          <Pencil />
-          Editar
-        </DropdownMenuItem>
-        {driver.status === "pendente" && (
-          <DropdownMenuItem onClick={handleApprove} disabled={isPending}>
-            <CheckCircle2 />
-            Aprovar
+    <AlertDialog>
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          render={<Button variant="ghost" size="icon-sm" aria-label={`Ações para ${driver.nome}`} />}
+        >
+          {isPending ? <Loader2 className="animate-spin" /> : <MoreHorizontal />}
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem render={<Link href={`/dashboard/motoristas/${driver.id}`} />}>
+            <Eye />
+            Ver detalhes
           </DropdownMenuItem>
-        )}
-      </DropdownMenuContent>
-    </DropdownMenu>
+          <DropdownMenuItem render={<Link href={`/dashboard/motoristas/${driver.id}/editar`} />}>
+            <Pencil />
+            Editar
+          </DropdownMenuItem>
+          {driver.status === "pendente" && (
+            <DropdownMenuItem onClick={handleApprove} disabled={isPending}>
+              <CheckCircle2 />
+              Aprovar
+            </DropdownMenuItem>
+          )}
+          {driver.status !== "pendente" && (
+            <AlertDialogTrigger render={<DropdownMenuItem onSelect={(e) => e.preventDefault()} variant="destructive" />}>
+              <Trash2 />
+              Excluir
+            </AlertDialogTrigger>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Excluir motorista?</AlertDialogTitle>
+          <AlertDialogDescription>
+            {driver.nome} será removido da base de motoristas. Essa ação não pode ser desfeita.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+          <AlertDialogAction render={<Button variant="destructive" onClick={handleDelete} />}>
+            Excluir
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
 

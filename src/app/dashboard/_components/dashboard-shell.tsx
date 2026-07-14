@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, DollarSign, User, Ticket } from "lucide-react";
+import { LayoutDashboard, Users, DollarSign, User, Ticket, Car } from "lucide-react";
 
 import {
   Sidebar,
@@ -25,6 +25,7 @@ import { SignOutButton } from "../sign-out-button";
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, exact: true },
+  { href: "/dashboard/corridas", label: "Corridas", icon: Car, exact: false },
   { href: "/dashboard/motoristas", label: "Motoristas", icon: Users, exact: false },
   { href: "/dashboard/preco", label: "Preço", icon: DollarSign, exact: false },
   { href: "/dashboard/passageiros", label: "Passageiro", icon: User, exact: false },
