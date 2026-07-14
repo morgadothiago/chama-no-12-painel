@@ -3,6 +3,18 @@ import { authOptions } from "@/lib/auth";
 import { api } from "@/lib/api-client";
 import type { Driver, DriverMetrics, DriverDocument, DriverTrip } from "@/lib/drivers";
 
+const API_URL = process.env.API_URL ?? "http://localhost:3000";
+
+// O backend devolve avatarUrl como caminho relativo (ex.: "/uploads/drivers/...")
+// porque quem serve o arquivo é a API, não o painel. Sem prefixar com a origem
+// da API, o <img> resolve o caminho contra o domínio do painel (Vercel) e
+// sempre dá 404.
+function resolveUploadUrl(url: string | null): string | null {
+  if (!url) return null;
+  if (/^https?:\/\//.test(url)) return url;
+  return `${API_URL}${url}`;
+}
+
 type ApiDriver = {
   id: string;
   nome: string;
@@ -41,7 +53,7 @@ function mapDriver(d: ApiDriver): Driver {
     telefone: d.telefone,
     cnh: d.cnh,
     status: d.status as Driver["status"],
-    avatarUrl: d.avatarUrl,
+    avatarUrl: resolveUploadUrl(d.avatarUrl),
     veiculo: d.veiculo,
     endereco: d.endereco,
     metrics: d.metrics,
