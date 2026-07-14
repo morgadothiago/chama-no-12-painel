@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { CheckCircle2, Loader2, MoreHorizontal, Search } from "lucide-react";
+import { CheckCircle2, Loader2, MoreHorizontal, Search, XCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { RideStatusBadge } from "@/components/dashboard/ride-status-badge";
 import type { Ride, RideStatus } from "@/lib/api-rides";
-import { completeRideAction } from "../actions";
+import { cancelRideAction, completeRideAction } from "../actions";
 
 const STATUS_FILTERS: { value: RideStatus | "todas"; label: string }[] = [
   { value: "todas", label: "Todas" },
@@ -52,7 +52,15 @@ function RideRowActions({ ride }: { ride: Ride }) {
     });
   }
 
+  function handleCancel() {
+    startTransition(async () => {
+      await cancelRideAction(ride.id);
+      router.refresh();
+    });
+  }
+
   const canComplete = ride.status === "iniciada";
+  const canCancel = ride.status === "solicitada" || ride.status === "aceita" || ride.status === "iniciada";
 
   return (
     <DropdownMenu>
@@ -71,6 +79,10 @@ function RideRowActions({ ride }: { ride: Ride }) {
         <DropdownMenuItem onClick={handleComplete} disabled={!canComplete || isPending}>
           <CheckCircle2 />
           Finalizar corrida
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={handleCancel} disabled={!canCancel || isPending} variant="destructive">
+          <XCircle />
+          Cancelar corrida
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

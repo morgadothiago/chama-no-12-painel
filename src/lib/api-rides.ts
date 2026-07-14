@@ -62,3 +62,17 @@ export async function completeRide(id: string): Promise<{ success: boolean; erro
     return { success: false, error: (err as Error).message };
   }
 }
+
+export async function cancelRide(id: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const token = await getToken();
+    await api.post(
+      `/rides/${id}/cancel`,
+      { canceladoPor: "sistema", motivo: "Cancelada pelo admin no painel" },
+      token,
+    );
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: (err as Error).message };
+  }
+}
