@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const driverStatusSchema = z.enum(["ativo", "inativo", "pendente"]);
+export const driverStatusSchema = z.enum(["ativo", "inativo", "pendente", "rejeitado"]);
 
 export type DriverStatus = z.infer<typeof driverStatusSchema>;
 

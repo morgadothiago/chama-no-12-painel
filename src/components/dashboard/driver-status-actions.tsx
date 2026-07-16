@@ -64,6 +64,10 @@ export function DriverStatusActions({ driver }: { driver: Driver }) {
     });
   }
 
+  if (driver.status === "rejeitado") {
+    return null;
+  }
+
   return (
     <div className="flex flex-col items-end gap-2">
       <div className="flex flex-wrap items-center justify-end gap-2">
@@ -93,9 +97,7 @@ export function DriverStatusActions({ driver }: { driver: Driver }) {
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction
-                    render={<Button variant="destructive" onClick={handleReject} />}
-                  >
+                  <AlertDialogAction variant="destructive" onClick={handleReject}>
                     Rejeitar
                   </AlertDialogAction>
                 </AlertDialogFooter>
@@ -131,7 +133,7 @@ export function DriverStatusActions({ driver }: { driver: Driver }) {
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                <AlertDialogAction render={<Button onClick={handleToggleActive} />}>
+                <AlertDialogAction onClick={handleToggleActive}>
                   Confirmar
                 </AlertDialogAction>
               </AlertDialogFooter>
@@ -155,7 +157,7 @@ export function DriverStatusActions({ driver }: { driver: Driver }) {
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                <AlertDialogAction render={<Button variant="destructive" onClick={handleReject} />}>
+                <AlertDialogAction variant="destructive" onClick={handleReject}>
                   Excluir
                 </AlertDialogAction>
               </AlertDialogFooter>

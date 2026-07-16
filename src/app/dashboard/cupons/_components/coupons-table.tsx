@@ -15,6 +15,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import type { Coupon, CouponTipoDesconto } from "@/lib/api-coupons";
+import { showErrorToast } from "@/lib/toast";
 import { toggleCouponAction } from "../actions";
 
 const TIPO_LABEL: Record<CouponTipoDesconto, string> = {
@@ -35,7 +36,11 @@ function ToggleCouponButton({ coupon }: { coupon: Coupon }) {
   function handleToggle() {
     startTransition(async () => {
       const result = await toggleCouponAction(coupon.id, ativo);
-      if (result.success) setAtivo((prev) => !prev);
+      if (result.success) {
+        setAtivo((prev) => !prev);
+      } else {
+        showErrorToast(result.error);
+      }
     });
   }
 

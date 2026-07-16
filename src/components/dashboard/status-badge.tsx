@@ -18,6 +18,11 @@ const STATUS_CONFIG: Record<DriverStatus, { label: string; className: string }> 
     className:
       "bg-amber-500/10 text-amber-600 dark:bg-amber-500/15 dark:text-amber-400",
   },
+  rejeitado: {
+    label: "Rejeitado",
+    className:
+      "bg-destructive/10 text-destructive dark:bg-destructive/20",
+  },
 };
 
 export function StatusBadge({ status }: { status: DriverStatus }) {

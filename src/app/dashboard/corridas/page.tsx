@@ -1,11 +1,10 @@
 import { Suspense } from "react";
-import { fetchRides } from "@/lib/api-rides";
+import { fetchRides, type Ride } from "@/lib/api-rides";
 import { PageHeader } from "@/components/shared/page-header";
 import { RidesTable } from "./_components/rides-table";
 import { RidesTableSkeleton } from "./_components/rides-table-skeleton";
 
-async function RidesTableSection() {
-  const rides = await fetchRides();
+function RidesTableSection({ rides }: { rides: Ride[] }) {
   return <RidesTable rides={rides} />;
 }
 
@@ -20,7 +19,7 @@ export default async function CorridasPage() {
       />
 
       <Suspense fallback={<RidesTableSkeleton />}>
-        <RidesTableSection />
+        <RidesTableSection rides={rides} />
       </Suspense>
     </div>
   );

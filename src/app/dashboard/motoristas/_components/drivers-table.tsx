@@ -35,6 +35,7 @@ import { StatusBadge } from "@/components/dashboard/status-badge";
 import { DriverAvatar } from "@/components/dashboard/driver-avatar";
 import type { Driver } from "@/lib/drivers";
 import type { DriverStatus } from "@/lib/validations/drivers";
+import { showErrorToast, showSuccessToast } from "@/lib/toast";
 import { approveDriverAction, rejectDriverAction } from "../actions";
 
 const STATUS_FILTERS: { value: DriverStatus | "todos"; label: string }[] = [
@@ -42,6 +43,7 @@ const STATUS_FILTERS: { value: DriverStatus | "todos"; label: string }[] = [
   { value: "ativo", label: "Ativo" },
   { value: "pendente", label: "Pendente" },
   { value: "inativo", label: "Inativo" },
+  { value: "rejeitado", label: "Rejeitado" },
 ];
 
 function DriverRowActions({ driver }: { driver: Driver }) {
@@ -50,14 +52,24 @@ function DriverRowActions({ driver }: { driver: Driver }) {
 
   function handleApprove() {
     startTransition(async () => {
-      await approveDriverAction(driver.id);
+      const result = await approveDriverAction(driver.id);
+      if (!result.success) {
+        showErrorToast(result.error);
+        return;
+      }
+      showSuccessToast(`${driver.nome} aprovado.`);
       router.refresh();
     });
   }
 
   function handleDelete() {
     startTransition(async () => {
-      await rejectDriverAction(driver.id);
+      const result = await rejectDriverAction(driver.id);
+      if (!result.success) {
+        showErrorToast(result.error);
+        return;
+      }
+      showSuccessToast(`${driver.nome} removido.`);
       router.refresh();
     });
   }
@@ -85,7 +97,7 @@ function DriverRowActions({ driver }: { driver: Driver }) {
               Aprovar
             </DropdownMenuItem>
           )}
-          {driver.status !== "pendente" && (
+          {driver.status !== "pendente" && driver.status !== "rejeitado" && (
             <AlertDialogTrigger render={<DropdownMenuItem onSelect={(e) => e.preventDefault()} variant="destructive" />}>
               <Trash2 />
               Excluir

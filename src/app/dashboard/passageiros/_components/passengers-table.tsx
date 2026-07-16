@@ -34,6 +34,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import type { Passenger } from "@/lib/passengers";
+import { showErrorToast, showSuccessToast } from "@/lib/toast";
 import {
   blockPassengerAction,
   deletePassengerAction,
@@ -73,14 +74,26 @@ function PassengerRowActions({ passenger }: { passenger: Passenger }) {
   function handleToggleBlock() {
     startTransition(async () => {
       const action = passenger.status === "bloqueado" ? unblockPassengerAction : blockPassengerAction;
-      await action(passenger.id);
+      const result = await action(passenger.id);
+      if (!result.success) {
+        showErrorToast(result.error);
+        return;
+      }
+      showSuccessToast(
+        passenger.status === "bloqueado" ? `${passenger.nome} desbloqueado.` : `${passenger.nome} bloqueado.`
+      );
       router.refresh();
     });
   }
 
   function handleDelete() {
     startTransition(async () => {
-      await deletePassengerAction(passenger.id);
+      const result = await deletePassengerAction(passenger.id);
+      if (!result.success) {
+        showErrorToast(result.error);
+        return;
+      }
+      showSuccessToast(`${passenger.nome} removido.`);
       router.refresh();
     });
   }

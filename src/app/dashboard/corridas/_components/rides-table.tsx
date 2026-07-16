@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { RideStatusBadge } from "@/components/dashboard/ride-status-badge";
 import type { Ride, RideStatus } from "@/lib/api-rides";
+import { showErrorToast, showSuccessToast } from "@/lib/toast";
 import { cancelRideAction, completeRideAction } from "../actions";
 
 const STATUS_FILTERS: { value: RideStatus | "todas"; label: string }[] = [
@@ -47,14 +48,24 @@ function RideRowActions({ ride }: { ride: Ride }) {
 
   function handleComplete() {
     startTransition(async () => {
-      await completeRideAction(ride.id);
+      const result = await completeRideAction(ride.id);
+      if (!result.success) {
+        showErrorToast(result.error);
+        return;
+      }
+      showSuccessToast("Corrida finalizada.");
       router.refresh();
     });
   }
 
   function handleCancel() {
     startTransition(async () => {
-      await cancelRideAction(ride.id);
+      const result = await cancelRideAction(ride.id);
+      if (!result.success) {
+        showErrorToast(result.error);
+        return;
+      }
+      showSuccessToast("Corrida cancelada.");
       router.refresh();
     });
   }

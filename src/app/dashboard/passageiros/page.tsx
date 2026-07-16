@@ -1,11 +1,11 @@
 import { Suspense } from "react";
 import { fetchPassengers } from "@/lib/api-passengers";
+import type { Passenger } from "@/lib/passengers";
 import { PageHeader } from "@/components/shared/page-header";
 import { PassengersTable } from "./_components/passengers-table";
 import { PassengersTableSkeleton } from "./_components/passengers-table-skeleton";
 
-async function PassengersTableSection() {
-  const passengers = await fetchPassengers();
+function PassengersTableSection({ passengers }: { passengers: Passenger[] }) {
   return <PassengersTable passengers={passengers} />;
 }
 
@@ -20,7 +20,7 @@ export default async function PassageirosPage() {
       />
 
       <Suspense fallback={<PassengersTableSkeleton />}>
-        <PassengersTableSection />
+        <PassengersTableSection passengers={passengers} />
       </Suspense>
     </div>
   );

@@ -2,13 +2,13 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { fetchDrivers } from "@/lib/api-drivers";
+import type { Driver } from "@/lib/drivers";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
 import { DriversTable } from "./_components/drivers-table";
 import { DriversTableSkeleton } from "./_components/drivers-table-skeleton";
 
-async function DriversTableSection() {
-  const drivers = await fetchDrivers();
+function DriversTableSection({ drivers }: { drivers: Driver[] }) {
   return <DriversTable drivers={drivers} />;
 }
 
@@ -29,7 +29,7 @@ export default async function MotoristasPage() {
       />
 
       <Suspense fallback={<DriversTableSkeleton />}>
-        <DriversTableSection />
+        <DriversTableSection drivers={drivers} />
       </Suspense>
     </div>
   );
