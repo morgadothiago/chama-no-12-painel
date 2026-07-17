@@ -18,6 +18,7 @@ body {
   flex-direction: column;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 * {
@@ -47,9 +48,6 @@ a {
     --card-foreground: oklch(0.145 0 0);
     --popover: oklch(1 0 0);
     --popover-foreground: oklch(0.145 0 0);
-    /* Brand "Chama nº 12" — verde extraído da chama do logo (#1f7d3b),
-       ajustado para 5.18:1 de contraste com texto branco (WCAG AA). Único
-       accent color do sistema; o resto continua neutro (cinza) de propósito. */
     --primary: oklch(0.52 0.132 148.87);
     --primary-foreground: oklch(0.985 0 0);
     --secondary: oklch(0.97 0 0);
@@ -81,7 +79,11 @@ a {
     --sidebar-accent-foreground: oklch(0.205 0 0);
     --sidebar-border: oklch(0.922 0 0);
     --sidebar-ring: oklch(0.52 0.132 148.87);
+
+    --sidebar-width: 16rem;
+    --sidebar-width-icon: 3rem;
   }
+
   .dark {
     --background: oklch(0.145 0 0);
     --foreground: oklch(0.985 0 0);
@@ -89,9 +91,6 @@ a {
     --card-foreground: oklch(0.985 0 0);
     --popover: oklch(0.205 0 0);
     --popover-foreground: oklch(0.985 0 0);
-    /* Verde mais claro/saturado em dark mode (oklch 0.713) — contraste
-       7.74:1 com texto quase-preto, mais legível que o tom claro sobre
-       fundo escuro. */
     --primary: oklch(0.713 0.172 149.587);
     --primary-foreground: oklch(0.145 0 0);
     --secondary: oklch(0.269 0 0);
@@ -119,13 +118,30 @@ a {
     --sidebar-border: oklch(1 0 0 / 10%);
     --sidebar-ring: oklch(0.713 0.172 149.587);
   }
+
   * {
     @apply border-border outline-ring;
+    transition-property: background-color, border-color, color;
+    transition-duration: 0.15s;
+    transition-timing-function: ease;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+
   html {
     @apply font-sans;
+  }
+
+  ::selection {
+    background-color: color-mix(in oklch, var(--primary) 25%, transparent);
+    color: var(--foreground);
+  }
+}
+
+@layer utilities {
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
   }
 }

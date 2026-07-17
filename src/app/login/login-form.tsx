@@ -5,10 +5,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CardContent, CardFooter } from "@/components/ui/card";
 import { loginSchema, type LoginFormValues } from "@/lib/validations/auth";
 
 export function LoginForm() {
@@ -17,7 +17,7 @@ export function LoginForm() {
   const [formError, setFormError] = useState<string | null>(
     searchParams.get("error") === "unauthorized"
       ? "Acesso restrito a administradores."
-      : null
+      : null,
   );
 
   const {
@@ -48,43 +48,59 @@ export function LoginForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate>
-      <CardContent className="flex flex-col gap-4">
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            type="email"
-            autoComplete="email"
-            placeholder="admin@example.com"
-            aria-invalid={!!errors.email}
-            {...register("email")}
-          />
-          {errors.email && (
-            <p className="text-sm text-destructive">{errors.email.message}</p>
-          )}
+    <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-5">
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor="email" className="text-sm font-medium">
+          Email
+        </Label>
+        <Input
+          id="email"
+          type="email"
+          autoComplete="email"
+          placeholder="admin@exemplo.com"
+          aria-invalid={!!errors.email}
+          className="h-10"
+          {...register("email")}
+        />
+        {errors.email && (
+          <p className="text-xs text-destructive">{errors.email.message}</p>
+        )}
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor="password" className="text-sm font-medium">
+          Senha
+        </Label>
+        <Input
+          id="password"
+          type="password"
+          autoComplete="current-password"
+          placeholder="••••••••"
+          aria-invalid={!!errors.password}
+          className="h-10"
+          {...register("password")}
+        />
+        {errors.password && (
+          <p className="text-xs text-destructive">{errors.password.message}</p>
+        )}
+      </div>
+
+      {formError && (
+        <div className="rounded-lg bg-destructive/10 px-3 py-2">
+          <p className="text-xs text-destructive">{formError}</p>
         </div>
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="password">Senha</Label>
-          <Input
-            id="password"
-            type="password"
-            autoComplete="current-password"
-            placeholder="••••••••"
-            aria-invalid={!!errors.password}
-            {...register("password")}
-          />
-          {errors.password && (
-            <p className="text-sm text-destructive">{errors.password.message}</p>
-          )}
-        </div>
-        {formError && <p className="text-sm text-destructive">{formError}</p>}
-      </CardContent>
-      <CardFooter>
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
-          {isSubmitting ? "Entrando..." : "Entrar"}
-        </Button>
-      </CardFooter>
+      )}
+
+      <Button type="submit" className="h-10 w-full" disabled={isSubmitting}>
+        {isSubmitting ? (
+          <span className="flex items-center gap-2">
+            <Loader2 className="size-4 animate-spin" />
+            Entrando...
+          </span>
+        ) : (
+          "Entrar"
+        )}
+      </Button>
     </form>
   );
 }

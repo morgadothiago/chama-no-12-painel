@@ -9,14 +9,9 @@ type PageHeaderProps = {
   actions?: React.ReactNode;
 };
 
-/**
- * Header padrão de página do painel: título + descrição opcional + link de
- * "voltar" opcional + slot de ações à direita. Usado em todas as telas do
- * módulo de motoristas para manter tipografia e espaçamento consistentes.
- */
 export function PageHeader({ title, description, backHref, backLabel, actions }: PageHeaderProps) {
   return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
       <div className="flex flex-col gap-2">
         {backHref && (
           <Link
@@ -28,12 +23,16 @@ export function PageHeader({ title, description, backHref, backLabel, actions }:
           </Link>
         )}
         <div className="flex flex-col gap-1">
-          <h1 className="text-xl font-semibold tracking-tight text-foreground">{title}</h1>
-          {description && <p className="text-sm text-muted-foreground">{description}</p>}
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">{title}</h1>
+          {description && (
+            <p className="text-sm leading-relaxed text-muted-foreground">{description}</p>
+          )}
         </div>
       </div>
 
-      {actions && <div className="flex flex-wrap items-start gap-2 sm:justify-end">{actions}</div>}
+      {actions && (
+        <div className="flex shrink-0 flex-wrap items-start gap-2 sm:justify-end">{actions}</div>
+      )}
     </div>
   );
 }

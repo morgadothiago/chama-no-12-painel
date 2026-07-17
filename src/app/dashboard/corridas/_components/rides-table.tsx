@@ -4,7 +4,14 @@ import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { io } from "socket.io-client";
-import { CheckCircle2, Loader2, MoreHorizontal, Search, XCircle } from "lucide-react";
+import {
+  CheckCircle2,
+  Loader2,
+  MoreHorizontal,
+  Search,
+  XCircle,
+  ArrowUpDown,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,6 +32,7 @@ import { RideStatusBadge } from "@/components/dashboard/ride-status-badge";
 import type { Ride, RideStatus } from "@/lib/api-rides";
 import { showErrorToast, showSuccessToast } from "@/lib/toast";
 import { cancelRideAction, completeRideAction } from "../actions";
+import { cn } from "@/lib/utils";
 
 const STATUS_FILTERS: { value: RideStatus | "todas"; label: string }[] = [
   { value: "todas", label: "Todas" },
@@ -88,7 +96,8 @@ function RideRowActions({ ride }: { ride: Ride }) {
   }
 
   const canComplete = ride.status === "iniciada";
-  const canCancel = ride.status === "solicitada" || ride.status === "aceita" || ride.status === "iniciada";
+  const canCancel =
+    ride.status === "solicitada" || ride.status === "aceita" || ride.status === "iniciada";
 
   return (
     <DropdownMenu>
@@ -103,13 +112,13 @@ function RideRowActions({ ride }: { ride: Ride }) {
       >
         {isPending ? <Loader2 className="animate-spin" /> : <MoreHorizontal />}
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent align="end" className="w-48">
         <DropdownMenuItem onClick={handleComplete} disabled={!canComplete || isPending}>
-          <CheckCircle2 />
+          <CheckCircle2 className="size-4 text-emerald-600" />
           Finalizar corrida
         </DropdownMenuItem>
         <DropdownMenuItem onClick={handleCancel} disabled={!canCancel || isPending} variant="destructive">
-          <XCircle />
+          <XCircle className="size-4" />
           Cancelar corrida
         </DropdownMenuItem>
       </DropdownMenuContent>
@@ -124,15 +133,10 @@ export function RidesTable({ rides: initialRides }: { rides: Ride[] }) {
   const [statusFilter, setStatusFilter] = useState<RideStatus | "todas">("todas");
   const [rides, setRides] = useState(initialRides);
 
-  // Mantém sincronizado quando o servidor re-renderiza (ex: ação do admin)
   useEffect(() => {
     setRides(initialRides);
   }, [initialRides]);
 
-  // Socket.IO: conecta no mesmo namespace /ws que motorista/passageiro usam.
-  // O JWT do admin coloca o socket na sala "admin", e o backend emite
-  // `admin:ride-event` a cada mudança de status. Aqui fazemos fetch apenas
-  // da corrida afetada e atualizamos no estado local — sem refresh total.
   useEffect(() => {
     const token = (session?.user as { apiToken?: string } | undefined)?.apiToken;
     if (!token) return;
@@ -149,7 +153,6 @@ export function RidesTable({ rides: initialRides }: { rides: Ride[] }) {
         router.refresh();
         return;
       }
-
       const updated = await fetchRideById(event.rideId, token);
       if (updated) {
         setRides((prev) => prev.map((r) => (r.id === event.rideId ? updated : r)));
@@ -175,16 +178,29 @@ export function RidesTable({ rides: initialRides }: { rides: Ride[] }) {
     });
   }, [rides, search, statusFilter]);
 
+  const sortedRides = useMemo(() => {
+    const order: Record<RideStatus, number> = {
+      solicitada: 0,
+      aceita: 1,
+      iniciada: 2,
+      finalizada: 3,
+      cancelada: 4,
+    };
+    return [...filteredRides].sort(
+      (a, b) => (order[a.status] ?? 99) - (order[b.status] ?? 99),
+    );
+  }, [filteredRides]);
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="relative w-full sm:max-w-xs">
-          <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground/50" />
           <Input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Buscar por passageiro, origem ou destino..."
-            className="pl-8"
+            placeholder="Buscar passageiro, origem ou destino..."
+            className="h-9 pl-9 text-sm"
             aria-label="Buscar corrida"
           />
         </div>
@@ -197,6 +213,10 @@ export function RidesTable({ rides: initialRides }: { rides: Ride[] }) {
               size="sm"
               variant={statusFilter === filter.value ? "secondary" : "ghost"}
               onClick={() => setStatusFilter(filter.value)}
+              className={cn(
+                "h-8 px-3 text-xs",
+                statusFilter !== filter.value && "text-muted-foreground hover:text-foreground",
+              )}
             >
               {filter.label}
             </Button>
@@ -204,34 +224,56 @@ export function RidesTable({ rides: initialRides }: { rides: Ride[] }) {
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-xl ring-1 ring-foreground/10">
+      <div className="overflow-hidden rounded-xl border border-border/50">
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
-              <TableHead>Passageiro</TableHead>
-              <TableHead>Origem → Destino</TableHead>
-              <TableHead>Valor</TableHead>
-              <TableHead>Solicitada em</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground/70">
+                Passageiro
+              </TableHead>
+              <TableHead className="hidden text-xs font-medium uppercase tracking-wider text-muted-foreground/70 md:table-cell">
+                Origem → Destino
+              </TableHead>
+              <TableHead className="hidden text-xs font-medium uppercase tracking-wider text-muted-foreground/70 sm:table-cell">
+                <div className="flex items-center gap-1">
+                  Valor
+                  <ArrowUpDown className="size-3" />
+                </div>
+              </TableHead>
+              <TableHead className="hidden text-xs font-medium uppercase tracking-wider text-muted-foreground/70 lg:table-cell">
+                Solicitação
+              </TableHead>
+              <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground/70">
+                Status
+              </TableHead>
               <TableHead className="w-10" />
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredRides.length === 0 ? (
+            {sortedRides.length === 0 ? (
               <TableRow className="hover:bg-transparent">
-                <TableCell colSpan={6} className="py-12">
-                  <div className="flex flex-col items-center justify-center gap-2 text-center">
-                    <Search className="size-8 text-muted-foreground/50" />
-                    <p className="text-sm font-medium">Nenhuma corrida encontrada</p>
-                    <p className="text-sm text-muted-foreground">
-                      Ajuste a busca ou o filtro de status para ver outros resultados.
-                    </p>
+                <TableCell colSpan={6} className="py-16">
+                  <div className="flex flex-col items-center justify-center gap-3 text-center">
+                    <div className="flex size-12 items-center justify-center rounded-full bg-muted/50">
+                      <Search className="size-5 text-muted-foreground/40" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">Nenhuma corrida encontrada</p>
+                      <p className="text-sm text-muted-foreground">
+                        {search || statusFilter !== "todas"
+                          ? "Tente ajustar a busca ou o filtro."
+                          : "Nenhuma corrida registrada ainda."}
+                      </p>
+                    </div>
                   </div>
                 </TableCell>
               </TableRow>
             ) : (
-              filteredRides.map((ride) => (
-                <TableRow key={ride.id}>
+              sortedRides.map((ride) => (
+                <TableRow
+                  key={ride.id}
+                  className="transition-colors hover:bg-muted/20"
+                >
                   <TableCell>
                     <div className="flex flex-col">
                       <span className="font-medium text-foreground">{ride.passengerName}</span>
@@ -240,12 +282,14 @@ export function RidesTable({ rides: initialRides }: { rides: Ride[] }) {
                       )}
                     </div>
                   </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {ride.origem} → {ride.destino}
+                  <TableCell className="hidden max-w-[280px] truncate text-muted-foreground md:table-cell">
+                    {ride.origem} <span className="text-muted-foreground/40">→</span> {ride.destino}
                   </TableCell>
-                  <TableCell className="text-muted-foreground">{formatValor(ride.valor)}</TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {formatData(ride.solicitadaEm)}
+                  <TableCell className="hidden tabular-nums text-muted-foreground sm:table-cell">
+                    {formatValor(ride.valor)}
+                  </TableCell>
+                  <TableCell className="hidden text-muted-foreground lg:table-cell">
+                    <span className="text-sm tabular-nums">{formatData(ride.solicitadaEm)}</span>
                   </TableCell>
                   <TableCell>
                     <RideStatusBadge status={ride.status} />
@@ -259,6 +303,12 @@ export function RidesTable({ rides: initialRides }: { rides: Ride[] }) {
           </TableBody>
         </Table>
       </div>
+
+      {sortedRides.length > 0 && (
+        <p className="text-xs text-muted-foreground/60">
+          {sortedRides.length} de {rides.length} corrida{sortedRides.length === 1 ? "" : "s"}
+        </p>
+      )}
     </div>
   );
 }
