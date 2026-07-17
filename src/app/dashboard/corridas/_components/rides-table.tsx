@@ -1,7 +1,9 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { io } from "socket.io-client";
 import { CheckCircle2, Loader2, MoreHorizontal, Search, XCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -40,6 +42,21 @@ function formatValor(valor: number | null) {
 
 function formatData(iso: string) {
   return new Date(iso).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
+}
+
+async function fetchRideById(id: string, token: string): Promise<Ride | null> {
+  try {
+    const url = `${process.env.NEXT_PUBLIC_API_URL}/api/v1/rides/${id}`;
+    const res = await fetch(url, {
+      headers: { Authorization: `Bearer ${token}` },
+      cache: "no-store",
+    });
+    if (!res.ok) return null;
+    const body = await res.json();
+    return body.data ?? null;
+  } catch {
+    return null;
+  }
 }
 
 function RideRowActions({ ride }: { ride: Ride }) {
@@ -100,9 +117,49 @@ function RideRowActions({ ride }: { ride: Ride }) {
   );
 }
 
-export function RidesTable({ rides }: { rides: Ride[] }) {
+export function RidesTable({ rides: initialRides }: { rides: Ride[] }) {
+  const router = useRouter();
+  const { data: session } = useSession();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<RideStatus | "todas">("todas");
+  const [rides, setRides] = useState(initialRides);
+
+  // Mantém sincronizado quando o servidor re-renderiza (ex: ação do admin)
+  useEffect(() => {
+    setRides(initialRides);
+  }, [initialRides]);
+
+  // Socket.IO: conecta no mesmo namespace /ws que motorista/passageiro usam.
+  // O JWT do admin coloca o socket na sala "admin", e o backend emite
+  // `admin:ride-event` a cada mudança de status. Aqui fazemos fetch apenas
+  // da corrida afetada e atualizamos no estado local — sem refresh total.
+  useEffect(() => {
+    const token = (session?.user as { apiToken?: string } | undefined)?.apiToken;
+    if (!token) return;
+
+    const socket = io(`${process.env.NEXT_PUBLIC_API_URL}/ws`, {
+      auth: { token },
+      transports: ["websocket"],
+      reconnection: true,
+      reconnectionDelay: 2000,
+    });
+
+    socket.on("admin:ride-event", async (event: { type: string; rideId: string }) => {
+      if (event.type === "new-request") {
+        router.refresh();
+        return;
+      }
+
+      const updated = await fetchRideById(event.rideId, token);
+      if (updated) {
+        setRides((prev) => prev.map((r) => (r.id === event.rideId ? updated : r)));
+      }
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [session, router]);
 
   const filteredRides = useMemo(() => {
     const query = search.trim().toLowerCase();

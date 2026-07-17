@@ -1,4 +1,7 @@
+"use client";
+
 import { cn } from "@/lib/utils";
+import { useState } from "react";
 
 function getInitials(name: string) {
   const parts = name.trim().split(/\s+/);
@@ -16,12 +19,14 @@ export function DriverAvatar({
   avatarUrl: string | null;
   className?: string;
 }) {
-  if (avatarUrl) {
-    // eslint-disable-next-line @next/next/no-img-element
+  const [imgError, setImgError] = useState(false);
+
+  if (avatarUrl && !imgError) {
     return (
       <img
         src={avatarUrl}
         alt={nome}
+        onError={() => setImgError(true)}
         className={cn("size-8 shrink-0 rounded-full object-cover", className)}
       />
     );

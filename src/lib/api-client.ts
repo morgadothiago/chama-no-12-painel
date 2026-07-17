@@ -13,6 +13,9 @@ async function request<T>(
   const url = `${API_URL}/api/v1${path}`;
   const res = await fetch(url, {
     ...options,
+    // Sem isso o Next cacheia a resposta indefinidamente (force-cache padrão)
+    // e o dashboard fica preso em dados velhos até o processo reiniciar.
+    cache: "no-store",
     headers: {
       "Content-Type": "application/json",
       ...options.headers,
