@@ -3,10 +3,9 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { FileCheck2, Loader2 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
+import { StatusPill, type StatusTone } from "@/components/dashboard/status-pill";
 import type { DriverDocument, DocumentTipo } from "@/lib/drivers";
 import { simulateDocumentUploadAction } from "@/app/dashboard/motoristas/actions";
 
@@ -16,20 +15,11 @@ const DOCUMENT_LABELS: Record<DocumentTipo, string> = {
   foto_veiculo: "Foto do veículo",
 };
 
-const STATUS_CONFIG = {
-  aprovado: {
-    label: "Aprovado",
-    className: "bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400",
-  },
-  pendente: {
-    label: "Pendente",
-    className: "bg-amber-500/10 text-amber-600 dark:bg-amber-500/15 dark:text-amber-400",
-  },
-  rejeitado: {
-    label: "Rejeitado",
-    className: "bg-destructive/10 text-destructive dark:bg-destructive/20",
-  },
-} as const;
+const STATUS_CONFIG: Record<DriverDocument["status"], { label: string; tone: StatusTone }> = {
+  aprovado: { label: "Aprovado", tone: "success" },
+  pendente: { label: "Pendente", tone: "warning" },
+  rejeitado: { label: "Rejeitado", tone: "danger" },
+};
 
 export function DriverDocumentsCard({
   driverId,
@@ -68,7 +58,7 @@ export function DriverDocumentsCard({
           return (
             <div
               key={documento.tipo}
-              className="flex flex-col gap-2 rounded-lg ring-1 ring-foreground/10 p-3 sm:flex-row sm:items-center sm:justify-between"
+              className="flex flex-col gap-2 rounded-xl ring-1 ring-border p-3 sm:flex-row sm:items-center sm:justify-between"
             >
               <div className="flex items-center gap-2.5">
                 <FileCheck2 className="size-4 text-muted-foreground" />
@@ -80,9 +70,7 @@ export function DriverDocumentsCard({
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Badge variant="outline" className={cn("border-transparent font-medium", config.className)}>
-                  {config.label}
-                </Badge>
+                <StatusPill tone={config.tone} label={config.label} />
                 {documento.status !== "aprovado" && (
                   <Button
                     type="button"

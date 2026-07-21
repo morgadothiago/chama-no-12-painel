@@ -1,4 +1,6 @@
+import { Calendar, Car, Hash } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { InfoItem } from "@/components/dashboard/info-item";
 import type { Vehicle } from "@/lib/drivers";
 
 export function VehicleInfoCard({ veiculo }: { veiculo: Vehicle }) {
@@ -8,19 +10,10 @@ export function VehicleInfoCard({ veiculo }: { veiculo: Vehicle }) {
         <CardTitle className="text-base">Veículo</CardTitle>
       </CardHeader>
       <CardContent>
-        <dl className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-3">
-          <div>
-            <dt className="text-muted-foreground">Placa</dt>
-            <dd className="font-medium">{veiculo.placa}</dd>
-          </div>
-          <div>
-            <dt className="text-muted-foreground">Modelo</dt>
-            <dd className="font-medium">{veiculo.modelo}</dd>
-          </div>
-          <div>
-            <dt className="text-muted-foreground">Ano</dt>
-            <dd className="font-medium">{veiculo.ano}</dd>
-          </div>
+        <dl className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <InfoItem icon={Hash} label="Placa" value={veiculo.placa} />
+          <InfoItem icon={Car} label="Modelo" value={veiculo.modelo} />
+          <InfoItem icon={Calendar} label="Ano" value={veiculo.ano} />
         </dl>
       </CardContent>
     </Card>

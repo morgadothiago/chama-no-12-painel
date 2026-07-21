@@ -10,8 +10,6 @@ import {
   User,
   Ticket,
   Car,
-  LogOut,
-  ChevronRight,
 } from "lucide-react";
 
 import {
@@ -48,9 +46,9 @@ function AppSidebar() {
 
   return (
     <Sidebar collapsible="offcanvas">
-      <SidebarHeader>
-        <div className="flex items-center gap-3 px-2 py-1">
-          <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary shadow-sm">
+      <SidebarHeader className="px-1 pt-2">
+        <div className="flex items-center gap-2.5 px-2 py-2">
+          <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary shadow-sm">
             <Image
               src="/logo.png"
               alt=""
@@ -63,18 +61,20 @@ function AppSidebar() {
             <span className="font-heading text-sm font-semibold text-sidebar-foreground">
               Chama nº 12
             </span>
-            <span className="text-[11px] text-muted-foreground">Painel Administrativo</span>
+            <span className="text-[11px] text-sidebar-foreground/50">Painel Administrativo</span>
           </div>
         </div>
       </SidebarHeader>
 
       <SidebarSeparator />
 
-      <SidebarContent>
+      <SidebarContent className="px-1 py-1">
         <SidebarGroup>
-          <SidebarGroupLabel>Navegação</SidebarGroupLabel>
+          <SidebarGroupLabel className="px-2 text-[10px] font-semibold tracking-widest text-sidebar-foreground/40 uppercase">
+            Navegação
+          </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="gap-0.5">
               {NAV_ITEMS.map((item) => {
                 const isActive = item.exact
                   ? pathname === item.href
@@ -88,21 +88,30 @@ function AppSidebar() {
                       tooltip={item.label}
                       render={<Link href={item.href} />}
                       className={cn(
-                        "group/item relative",
-                        isActive && "after:absolute after:bottom-1.5 after:left-2 after:right-2 after:top-1.5 after:rounded-md after:bg-primary/10",
+                        "group/item relative h-9 rounded-lg px-2.5 transition-colors",
+                        isActive && "bg-sidebar-accent",
                       )}
                     >
                       <div
                         className={cn(
                           "flex size-5 shrink-0 items-center justify-center transition-colors",
-                          isActive ? "text-primary" : "text-sidebar-foreground/60 group-hover/item:text-sidebar-foreground",
+                          isActive
+                            ? "text-sidebar-primary"
+                            : "text-sidebar-foreground/45 group-hover/item:text-sidebar-foreground/80",
                         )}
                       >
                         <Icon className="size-4" />
                       </div>
-                      <span className="flex-1 truncate text-sm font-medium">{item.label}</span>
+                      <span
+                        className={cn(
+                          "flex-1 truncate text-sm",
+                          isActive ? "font-medium text-sidebar-foreground" : "text-sidebar-foreground/80",
+                        )}
+                      >
+                        {item.label}
+                      </span>
                       {isActive && (
-                        <div className="absolute -left-3 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-primary" />
+                        <div className="absolute -left-1 top-1/2 h-4 w-0.5 -translate-y-1/2 rounded-full bg-sidebar-primary" />
                       )}
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -113,9 +122,10 @@ function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter>
-        <div className="px-3 py-2">
-          <p className="text-[11px] text-muted-foreground">v1.0.0</p>
+      <SidebarFooter className="px-1 pb-2">
+        <SidebarSeparator className="mb-1" />
+        <div className="px-3 py-1.5">
+          <p className="text-[11px] text-sidebar-foreground/35">v1.0.0</p>
         </div>
       </SidebarFooter>
     </Sidebar>
@@ -137,12 +147,20 @@ export function DashboardShell({
       (pathname === item.href || pathname.startsWith(`${item.href}/`)),
   )?.label;
 
+  const initials = (user.name ?? user.email ?? "?")
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
+
   return (
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center justify-between border-b border-border bg-background/80 px-4 backdrop-blur-sm md:px-6">
-          <div className="flex items-center gap-2">
+        <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center justify-between border-b border-border bg-background/85 px-4 backdrop-blur-md md:px-6">
+          <div className="flex items-center gap-2.5">
             <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
             <Separator orientation="vertical" className="h-5" />
             <div className="flex items-center gap-2 md:hidden">
@@ -157,26 +175,28 @@ export function DashboardShell({
               </div>
               <span className="font-heading text-sm font-semibold">Chama nº 12</span>
             </div>
-            {pageTitle && (
-              <>
-                <ChevronRight className="hidden size-4 text-muted-foreground/50 md:block" />
-                <span className="hidden text-sm font-medium text-muted-foreground md:block">
-                  {pageTitle}
-                </span>
-              </>
-            )}
+            <span className="hidden text-sm font-medium text-foreground md:block">
+              {pageTitle ?? "Dashboard"}
+            </span>
           </div>
 
           <div className="ml-auto flex items-center gap-3">
-            <div className="hidden text-right sm:block">
-              <p className="text-sm font-medium leading-tight text-foreground">{user.name}</p>
-              <p className="text-xs leading-tight text-muted-foreground">{user.email}</p>
+            <div className="hidden items-center gap-2.5 border-r border-border pr-3 sm:flex">
+              <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-secondary text-[11px] font-medium text-secondary-foreground">
+                {initials}
+              </div>
+              <div className="text-right leading-tight">
+                <p className="text-sm font-medium text-foreground">{user.name}</p>
+                <p className="text-xs text-muted-foreground">{user.email}</p>
+              </div>
             </div>
             <SignOutButton />
           </div>
         </header>
 
-        <main className="flex-1 px-4 py-6 md:px-8 md:py-8">{children}</main>
+        <main className="flex-1 px-4 py-6 md:px-8 md:py-8">
+          <div className="mx-auto w-full max-w-7xl">{children}</div>
+        </main>
       </SidebarInset>
     </SidebarProvider>
   );

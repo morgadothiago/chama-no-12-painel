@@ -22,8 +22,10 @@ export function PageHeader({ title, description, backHref, backLabel, actions }:
             {backLabel ?? "Voltar"}
           </Link>
         )}
-        <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">{title}</h1>
+        <div className="flex flex-col gap-1.5">
+          <h1 className="text-xl font-semibold tracking-tight text-foreground md:text-2xl">
+            {title}
+          </h1>
           {description && (
             <p className="text-sm leading-relaxed text-muted-foreground">{description}</p>
           )}

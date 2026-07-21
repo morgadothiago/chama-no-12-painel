@@ -179,15 +179,8 @@ export function RidesTable({ rides: initialRides }: { rides: Ride[] }) {
   }, [rides, search, statusFilter]);
 
   const sortedRides = useMemo(() => {
-    const order: Record<RideStatus, number> = {
-      solicitada: 0,
-      aceita: 1,
-      iniciada: 2,
-      finalizada: 3,
-      cancelada: 4,
-    };
     return [...filteredRides].sort(
-      (a, b) => (order[a.status] ?? 99) - (order[b.status] ?? 99),
+      (a, b) => new Date(b.solicitadaEm).getTime() - new Date(a.solicitadaEm).getTime(),
     );
   }, [filteredRides]);
 

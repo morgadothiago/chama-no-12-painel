@@ -1,22 +1,13 @@
 import { getServerSession } from "next-auth";
-import { Car, Users, UserCheck, ClockAlert, TrendingUp } from "lucide-react";
+import { Car, Users, UserCheck, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { authOptions } from "@/lib/auth";
 import { fetchDrivers } from "@/lib/api-drivers";
 import { fetchRides } from "@/lib/api-rides";
 import { PageHeader } from "@/components/shared/page-header";
 import { StatCard } from "@/components/dashboard/stat-card";
+import { RideStatusBadge } from "@/components/dashboard/ride-status-badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
-
-const STATUS_CONFIG = {
-  solicitada: { label: "Solicitada", className: "bg-amber-500/10 text-amber-600 dark:text-amber-400" },
-  aceita: { label: "Aceita", className: "bg-blue-500/10 text-blue-600 dark:text-blue-400" },
-  iniciada: { label: "Em andamento", className: "bg-blue-500/10 text-blue-600 dark:text-blue-400" },
-  finalizada: { label: "Concluída", className: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
-  cancelada: { label: "Cancelada", className: "bg-red-500/10 text-red-600 dark:text-red-400" },
-} as const;
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
@@ -74,37 +65,29 @@ export default async function DashboardPage() {
           </CardHeader>
           <CardContent className="px-0">
             <div className="divide-y divide-border/50">
-              {ultimasCorridas.map((ride) => {
-                const config = STATUS_CONFIG[ride.status];
-                return (
-                  <div
-                    key={ride.id}
-                    className="flex items-center justify-between px-6 py-3 transition-colors hover:bg-muted/30"
-                  >
-                    <div className="flex min-w-0 flex-col gap-0.5">
-                      <span className="truncate text-sm font-medium text-foreground">
-                        {ride.passengerName}
-                      </span>
-                      <span className="truncate text-xs text-muted-foreground">
-                        {ride.origem} → {ride.destino}
-                      </span>
-                    </div>
-                    <div className="flex shrink-0 items-center gap-3">
-                      {ride.valor && (
-                        <span className="text-sm font-medium tabular-nums text-foreground">
-                          {ride.valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
-                        </span>
-                      )}
-                      <Badge
-                        variant="outline"
-                        className={cn("border-transparent font-medium", config.className)}
-                      >
-                        {config.label}
-                      </Badge>
-                    </div>
+              {ultimasCorridas.map((ride) => (
+                <div
+                  key={ride.id}
+                  className="flex items-center justify-between px-6 py-3 transition-colors hover:bg-muted/30"
+                >
+                  <div className="flex min-w-0 flex-col gap-0.5">
+                    <span className="truncate text-sm font-medium text-foreground">
+                      {ride.passengerName}
+                    </span>
+                    <span className="truncate text-xs text-muted-foreground">
+                      {ride.origem} → {ride.destino}
+                    </span>
                   </div>
-                );
-              })}
+                  <div className="flex shrink-0 items-center gap-3">
+                    {ride.valor && (
+                      <span className="text-sm font-medium tabular-nums text-foreground">
+                        {ride.valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                      </span>
+                    )}
+                    <RideStatusBadge status={ride.status} />
+                  </div>
+                </div>
+              ))}
             </div>
           </CardContent>
         </Card>

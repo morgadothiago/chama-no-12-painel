@@ -1,4 +1,6 @@
+import { Route, Star, Wallet } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { MetricTile } from "@/components/dashboard/metric-tile";
 import type { DriverMetrics } from "@/lib/drivers";
 
 function formatCurrency(value: number) {
@@ -14,23 +16,15 @@ export function DriverMetricsCard({ metrics }: { metrics: DriverMetrics }) {
       <CardHeader>
         <CardTitle className="text-base">Métricas</CardTitle>
       </CardHeader>
-      <CardContent>
-        <dl className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-3">
-          <div>
-            <dt className="text-muted-foreground">Corridas feitas</dt>
-            <dd className="text-lg font-semibold">{metrics.corridas}</dd>
-          </div>
-          <div>
-            <dt className="text-muted-foreground">Avaliação média</dt>
-            <dd className="text-lg font-semibold">
-              {metrics.avaliacaoMedia > 0 ? metrics.avaliacaoMedia.toFixed(2) : "—"}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-muted-foreground">Ganhos</dt>
-            <dd className="text-lg font-semibold">{formatCurrency(metrics.ganhos)}</dd>
-          </div>
-        </dl>
+      <CardContent className="flex flex-col gap-4">
+        <MetricTile label="Corridas feitas" value={metrics.corridas} icon={Route} accent="blue" />
+        <MetricTile
+          label="Avaliação média"
+          value={metrics.avaliacaoMedia > 0 ? metrics.avaliacaoMedia.toFixed(2) : "—"}
+          icon={Star}
+          accent="amber"
+        />
+        <MetricTile label="Ganhos" value={formatCurrency(metrics.ganhos)} icon={Wallet} accent="emerald" />
       </CardContent>
     </Card>
   );

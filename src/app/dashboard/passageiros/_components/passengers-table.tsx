@@ -31,8 +31,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { PassengerStatusBadge } from "@/components/dashboard/passenger-status-badge";
 import type { Passenger } from "@/lib/passengers";
 import { showErrorToast, showSuccessToast } from "@/lib/toast";
 import {
@@ -40,25 +39,6 @@ import {
   deletePassengerAction,
   unblockPassengerAction,
 } from "../actions";
-
-const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
-  ativo: {
-    label: "Ativo",
-    className: "bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400",
-  },
-  inativo: {
-    label: "Inativo",
-    className: "bg-muted text-muted-foreground",
-  },
-  bloqueado: {
-    label: "Bloqueado",
-    className: "bg-red-500/10 text-red-600 dark:bg-red-500/15 dark:text-red-400",
-  },
-  excluido: {
-    label: "Excluído",
-    className: "bg-muted text-muted-foreground",
-  },
-};
 
 const STATUS_FILTERS = [
   { value: "todos" as const, label: "Todos" },
@@ -200,7 +180,7 @@ export function PassengersTable({ passengers }: { passengers: Passenger[] }) {
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-xl ring-1 ring-foreground/10">
+      <div className="overflow-hidden rounded-xl ring-1 ring-border">
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
@@ -227,46 +207,38 @@ export function PassengersTable({ passengers }: { passengers: Passenger[] }) {
                 </TableCell>
               </TableRow>
             ) : (
-              filtered.map((passenger) => {
-                const statusConfig = STATUS_CONFIG[passenger.status];
-                return (
-                  <TableRow key={passenger.id}>
-                    <TableCell>
-                      <Link
-                        href={`/dashboard/passageiros/${passenger.id}`}
-                        className="flex items-center gap-2.5"
-                      >
-                        <div className="flex size-8 items-center justify-center rounded-full bg-muted text-xs font-semibold text-muted-foreground">
-                          {passenger.nome.charAt(0).toUpperCase()}
-                        </div>
-                        <div className="flex flex-col">
-                          <span className="font-medium text-foreground">{passenger.nome}</span>
-                          <span className="text-xs text-muted-foreground">{passenger.email}</span>
-                        </div>
-                      </Link>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">{passenger.telefone}</TableCell>
-                    <TableCell className="text-muted-foreground">{passenger.totalCorridas}</TableCell>
-                    <TableCell className="text-muted-foreground">
-                      R$ {passenger.totalGasto.toFixed(2)}
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {new Date(passenger.cadastroEm).toLocaleDateString("pt-BR")}
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant="outline"
-                        className={cn("border-transparent font-medium", statusConfig.className)}
-                      >
-                        {statusConfig.label}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <PassengerRowActions passenger={passenger} />
-                    </TableCell>
-                  </TableRow>
-                );
-              })
+              filtered.map((passenger) => (
+                <TableRow key={passenger.id}>
+                  <TableCell>
+                    <Link
+                      href={`/dashboard/passageiros/${passenger.id}`}
+                      className="flex items-center gap-2.5"
+                    >
+                      <div className="flex size-8 items-center justify-center rounded-full bg-muted text-xs font-semibold text-muted-foreground">
+                        {passenger.nome.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="font-medium text-foreground">{passenger.nome}</span>
+                        <span className="text-xs text-muted-foreground">{passenger.email}</span>
+                      </div>
+                    </Link>
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">{passenger.telefone}</TableCell>
+                  <TableCell className="text-muted-foreground">{passenger.totalCorridas}</TableCell>
+                  <TableCell className="text-muted-foreground">
+                    R$ {passenger.totalGasto.toFixed(2)}
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {new Date(passenger.cadastroEm).toLocaleDateString("pt-BR")}
+                  </TableCell>
+                  <TableCell>
+                    <PassengerStatusBadge status={passenger.status} />
+                  </TableCell>
+                  <TableCell>
+                    <PassengerRowActions passenger={passenger} />
+                  </TableCell>
+                </TableRow>
+              ))
             )}
           </TableBody>
         </Table>

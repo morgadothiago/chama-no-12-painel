@@ -1,4 +1,6 @@
+import { IdCard, Mail, Phone } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { InfoItem } from "@/components/dashboard/info-item";
 import type { Driver } from "@/lib/drivers";
 
 export function DriverInfoCard({ driver }: { driver: Driver }) {
@@ -8,19 +10,10 @@ export function DriverInfoCard({ driver }: { driver: Driver }) {
         <CardTitle className="text-base">Contato</CardTitle>
       </CardHeader>
       <CardContent>
-        <dl className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-3">
-          <div>
-            <dt className="text-muted-foreground">Email</dt>
-            <dd className="font-medium">{driver.email}</dd>
-          </div>
-          <div>
-            <dt className="text-muted-foreground">Telefone</dt>
-            <dd className="font-medium">{driver.telefone}</dd>
-          </div>
-          <div>
-            <dt className="text-muted-foreground">CNH</dt>
-            <dd className="font-medium">{driver.cnh}</dd>
-          </div>
+        <dl className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <InfoItem icon={Mail} label="Email" value={driver.email} />
+          <InfoItem icon={Phone} label="Telefone" value={driver.telefone} />
+          <InfoItem icon={IdCard} label="CNH" value={driver.cnh} />
         </dl>
       </CardContent>
     </Card>

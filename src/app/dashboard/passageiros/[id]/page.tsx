@@ -1,33 +1,16 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Pencil } from "lucide-react";
+import { Calendar, Mail, Pencil, Phone, Route, Wallet } from "lucide-react";
 import { fetchPassengerById } from "@/lib/api-passengers";
 import { PageHeader } from "@/components/shared/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { PassengerStatusActions } from "@/components/dashboard/passenger-status-actions";
+import { PassengerStatusBadge } from "@/components/dashboard/passenger-status-badge";
+import { InfoItem } from "@/components/dashboard/info-item";
+import { MetricTile } from "@/components/dashboard/metric-tile";
 import { cn } from "@/lib/utils";
-
-const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
-  ativo: {
-    label: "Ativo",
-    className: "bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400",
-  },
-  inativo: {
-    label: "Inativo",
-    className: "bg-muted text-muted-foreground",
-  },
-  bloqueado: {
-    label: "Bloqueado",
-    className: "bg-red-500/10 text-red-600 dark:bg-red-500/15 dark:text-red-400",
-  },
-  excluido: {
-    label: "Excluído",
-    className: "bg-muted text-muted-foreground",
-  },
-};
 
 export default async function PassageiroDetailPage({
   params,
@@ -41,8 +24,6 @@ export default async function PassageiroDetailPage({
     notFound();
   }
 
-  const statusConfig = STATUS_CONFIG[passenger.status];
-
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
@@ -54,12 +35,7 @@ export default async function PassageiroDetailPage({
               {passenger.nome.charAt(0).toUpperCase()}
             </span>
             {passenger.nome}
-            <Badge
-              variant="outline"
-              className={cn("border-transparent font-medium", statusConfig.className)}
-            >
-              {statusConfig.label}
-            </Badge>
+            <PassengerStatusBadge status={passenger.status} />
           </span>
         }
         description={passenger.email}
@@ -86,24 +62,13 @@ export default async function PassageiroDetailPage({
               <CardTitle className="text-base">Informações do passageiro</CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                <p className="text-xs text-muted-foreground">Nome</p>
-                <p className="text-sm font-medium">{passenger.nome}</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Email</p>
-                <p className="text-sm font-medium">{passenger.email}</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Telefone</p>
-                <p className="text-sm font-medium">{passenger.telefone}</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Cadastro</p>
-                <p className="text-sm font-medium">
-                  {new Date(passenger.cadastroEm).toLocaleDateString("pt-BR")}
-                </p>
-              </div>
+              <InfoItem icon={Mail} label="Email" value={passenger.email} />
+              <InfoItem icon={Phone} label="Telefone" value={passenger.telefone} />
+              <InfoItem
+                icon={Calendar}
+                label="Cadastro"
+                value={new Date(passenger.cadastroEm).toLocaleDateString("pt-BR")}
+              />
             </CardContent>
           </Card>
 
@@ -113,48 +78,58 @@ export default async function PassageiroDetailPage({
                 Histórico de corridas ({passenger.corridas.length})
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow className="hover:bg-transparent">
-                    <TableHead>Data</TableHead>
-                    <TableHead>Origem</TableHead>
-                    <TableHead>Destino</TableHead>
-                    <TableHead>Motorista</TableHead>
-                    <TableHead>Valor</TableHead>
-                    <TableHead>Avaliação</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {passenger.corridas.length === 0 ? (
-                    <TableRow className="hover:bg-transparent">
-                      <TableCell colSpan={6} className="py-12 text-center text-sm text-muted-foreground">
-                        Nenhuma corrida realizada
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    passenger.corridas.map((trip) => (
-                      <TableRow key={trip.id}>
-                        <TableCell className="text-sm text-muted-foreground">
-                          {new Date(trip.data + "T12:00:00").toLocaleDateString("pt-BR")}
-                        </TableCell>
-                        <TableCell className="text-sm">{trip.origem}</TableCell>
-                        <TableCell className="text-sm">{trip.destino}</TableCell>
-                        <TableCell className="text-sm text-muted-foreground">{trip.motorista}</TableCell>
-                        <TableCell className="font-medium">R$ {trip.valor.toFixed(2)}</TableCell>
-                        <TableCell>
-                          <span className={cn(
-                            "text-sm font-medium",
-                            trip.avaliacao >= 4 ? "text-emerald-600" : trip.avaliacao >= 2 ? "text-amber-600" : "text-red-600"
-                          )}>
-                            {trip.avaliacao.toFixed(1)}
-                          </span>
-                        </TableCell>
+            <CardContent className="px-0">
+              <div className="overflow-hidden px-4">
+                <div className="overflow-hidden rounded-xl ring-1 ring-border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="hover:bg-transparent">
+                        <TableHead>Data</TableHead>
+                        <TableHead>Origem</TableHead>
+                        <TableHead>Destino</TableHead>
+                        <TableHead>Motorista</TableHead>
+                        <TableHead>Valor</TableHead>
+                        <TableHead>Avaliação</TableHead>
                       </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {passenger.corridas.length === 0 ? (
+                        <TableRow className="hover:bg-transparent">
+                          <TableCell colSpan={6} className="py-12 text-center text-sm text-muted-foreground">
+                            Nenhuma corrida realizada
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        passenger.corridas.map((trip) => (
+                          <TableRow key={trip.id}>
+                            <TableCell className="text-sm text-muted-foreground">
+                              {new Date(trip.data + "T12:00:00").toLocaleDateString("pt-BR")}
+                            </TableCell>
+                            <TableCell className="text-sm">{trip.origem}</TableCell>
+                            <TableCell className="text-sm">{trip.destino}</TableCell>
+                            <TableCell className="text-sm text-muted-foreground">{trip.motorista}</TableCell>
+                            <TableCell className="font-medium">R$ {trip.valor.toFixed(2)}</TableCell>
+                            <TableCell>
+                              <span
+                                className={cn(
+                                  "text-sm font-medium",
+                                  trip.avaliacao >= 4
+                                    ? "text-emerald-600 dark:text-emerald-400"
+                                    : trip.avaliacao >= 2
+                                      ? "text-amber-600 dark:text-amber-400"
+                                      : "text-red-600 dark:text-red-400",
+                                )}
+                              >
+                                {trip.avaliacao.toFixed(1)}
+                              </span>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -164,23 +139,29 @@ export default async function PassageiroDetailPage({
             <CardHeader>
               <CardTitle className="text-base">Resumo</CardTitle>
             </CardHeader>
-            <CardContent className="flex flex-col gap-3">
-              <div className="flex items-center justify-between border-b border-border/50 pb-2">
-                <span className="text-sm text-muted-foreground">Total de corridas</span>
-                <span className="text-lg font-semibold">{passenger.totalCorridas}</span>
-              </div>
-              <div className="flex items-center justify-between border-b border-border/50 pb-2">
-                <span className="text-sm text-muted-foreground">Total gasto</span>
-                <span className="text-lg font-semibold">R$ {passenger.totalGasto.toFixed(2)}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Última corrida</span>
-                <span className="text-sm font-medium">
-                  {passenger.ultimaCorrida
+            <CardContent className="flex flex-col gap-4">
+              <MetricTile
+                label="Total de corridas"
+                value={passenger.totalCorridas}
+                icon={Route}
+                accent="blue"
+              />
+              <MetricTile
+                label="Total gasto"
+                value={`R$ ${passenger.totalGasto.toFixed(2)}`}
+                icon={Wallet}
+                accent="emerald"
+              />
+              <MetricTile
+                label="Última corrida"
+                value={
+                  passenger.ultimaCorrida
                     ? new Date(passenger.ultimaCorrida + "T12:00:00").toLocaleDateString("pt-BR")
-                    : "—"}
-                </span>
-              </div>
+                    : "—"
+                }
+                icon={Calendar}
+                accent="neutral"
+              />
             </CardContent>
           </Card>
         </div>

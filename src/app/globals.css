@@ -66,19 +66,22 @@ a {
     --chart-3: oklch(0.439 0 0);
     --chart-4: oklch(0.371 0 0);
     --chart-5: oklch(0.269 0 0);
-    --radius: 0.625rem;
+    --radius: 0.5rem;
     --radius-sm: calc(var(--radius) - 4px);
     --radius-md: calc(var(--radius) - 2px);
     --radius-lg: var(--radius);
     --radius-xl: calc(var(--radius) + 4px);
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.52 0.132 148.87);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.52 0.132 148.87);
+    /* Sidebar intentionally stays on the dark palette in both themes — gives the
+       shell a fixed anchor of contrast against the light content area and reads
+       as a more deliberate, "product" surface than a near-white panel would. */
+    --sidebar: oklch(0.16 0.006 148);
+    --sidebar-foreground: oklch(0.92 0.004 148);
+    --sidebar-primary: oklch(0.713 0.172 149.587);
+    --sidebar-primary-foreground: oklch(0.145 0 0);
+    --sidebar-accent: oklch(1 0 0 / 7%);
+    --sidebar-accent-foreground: oklch(0.985 0 0);
+    --sidebar-border: oklch(1 0 0 / 9%);
+    --sidebar-ring: oklch(0.713 0.172 149.587);
 
     --sidebar-width: 16rem;
     --sidebar-width-icon: 3rem;
@@ -109,13 +112,13 @@ a {
     --chart-3: oklch(0.439 0 0);
     --chart-4: oklch(0.371 0 0);
     --chart-5: oklch(0.269 0 0);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
+    --sidebar: oklch(0.13 0.006 148);
+    --sidebar-foreground: oklch(0.92 0.004 148);
     --sidebar-primary: oklch(0.713 0.172 149.587);
     --sidebar-primary-foreground: oklch(0.145 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
+    --sidebar-accent: oklch(1 0 0 / 7%);
     --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
+    --sidebar-border: oklch(1 0 0 / 9%);
     --sidebar-ring: oklch(0.713 0.172 149.587);
   }
 

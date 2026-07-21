@@ -21,7 +21,7 @@ export function DriversTableSkeleton() {
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-xl ring-1 ring-foreground/10">
+      <div className="overflow-hidden rounded-xl ring-1 ring-border">
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">

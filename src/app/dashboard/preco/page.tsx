@@ -3,9 +3,8 @@ import { fetchTarifaPadrao } from "@/lib/api-pricing";
 import { TarifaPadraoForm } from "@/components/dashboard/tarifa-padrao-form";
 import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { StatusPill } from "@/components/dashboard/status-pill";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { cn } from "@/lib/utils";
 
 const DIAS_LABEL: Record<string, string> = {
   seg: "Seg", ter: "Ter", qua: "Qua", qui: "Qui", sex: "Sex", sab: "Sáb", dom: "Dom",
@@ -72,17 +71,10 @@ export default async function PrecoPage() {
                       ))}
                     </TableCell>
                     <TableCell>
-                      <Badge
-                        variant="outline"
-                        className={cn(
-                          "border-transparent font-medium",
-                          bandeira.ativo
-                            ? "bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400"
-                            : "bg-muted text-muted-foreground"
-                        )}
-                      >
-                        {bandeira.ativo ? "Ativo" : "Inativo"}
-                      </Badge>
+                      <StatusPill
+                        tone={bandeira.ativo ? "success" : "neutral"}
+                        label={bandeira.ativo ? "Ativo" : "Inativo"}
+                      />
                     </TableCell>
                   </TableRow>
                 ))}
@@ -130,17 +122,10 @@ export default async function PrecoPage() {
                       {preco.diasSemana.map((d) => DIAS_LABEL[d]).join(", ")}
                     </TableCell>
                     <TableCell>
-                      <Badge
-                        variant="outline"
-                        className={cn(
-                          "border-transparent font-medium",
-                          preco.ativo
-                            ? "bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400"
-                            : "bg-muted text-muted-foreground"
-                        )}
-                      >
-                        {preco.ativo ? "Ativo" : "Inativo"}
-                      </Badge>
+                      <StatusPill
+                        tone={preco.ativo ? "success" : "neutral"}
+                        label={preco.ativo ? "Ativo" : "Inativo"}
+                      />
                     </TableCell>
                   </TableRow>
                 ))

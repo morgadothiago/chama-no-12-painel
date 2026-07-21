@@ -1,6 +1,6 @@
 import { MapPin, Navigation } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { StatusPill } from "@/components/dashboard/status-pill";
 import { estimateTravelMinutes } from "@/lib/geo";
 import { getMockPassengerRequest, getDistanceToPassengerKm, type Driver } from "@/lib/drivers";
 
@@ -17,9 +17,7 @@ export function DriverDistanceCard({ driver }: { driver: Driver }) {
       <CardHeader>
         <div className="flex items-center justify-between gap-2">
           <CardTitle className="text-base">Distância até o passageiro</CardTitle>
-          <Badge variant="outline" className="border-transparent bg-muted text-muted-foreground">
-            Estimativa local · sem Google Maps
-          </Badge>
+          <StatusPill tone="neutral" label="Estimativa local · sem Google Maps" />
         </div>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">

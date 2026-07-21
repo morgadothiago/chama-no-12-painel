@@ -12,8 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { StatusPill } from "@/components/dashboard/status-pill";
 import type { Coupon, CouponTipoDesconto } from "@/lib/api-coupons";
 import { showErrorToast } from "@/lib/toast";
 import { toggleCouponAction } from "../actions";
@@ -97,7 +96,7 @@ export function CouponsTable({ coupons }: { coupons: Coupon[] }) {
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-xl ring-1 ring-foreground/10">
+      <div className="overflow-hidden rounded-xl ring-1 ring-border">
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
@@ -142,17 +141,10 @@ export function CouponsTable({ coupons }: { coupons: Coupon[] }) {
                     {new Date(coupon.createdAt).toLocaleDateString("pt-BR")}
                   </TableCell>
                   <TableCell>
-                    <Badge
-                      variant="outline"
-                      className={cn(
-                        "border-transparent font-medium",
-                        coupon.ativo
-                          ? "bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400"
-                          : "bg-muted text-muted-foreground"
-                      )}
-                    >
-                      {coupon.ativo ? "Ativo" : "Inativo"}
-                    </Badge>
+                    <StatusPill
+                      tone={coupon.ativo ? "success" : "neutral"}
+                      label={coupon.ativo ? "Ativo" : "Inativo"}
+                    />
                   </TableCell>
                   <TableCell>
                     <ToggleCouponButton coupon={coupon} />
